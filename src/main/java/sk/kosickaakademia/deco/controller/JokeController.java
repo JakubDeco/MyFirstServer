@@ -64,6 +64,7 @@ public class JokeController {
     @PostMapping(path = "/addJoke")
     public ResponseEntity<String> addJoke(@RequestBody String body){
         JSONObject response = new JSONObject();
+        int status;
         try {
             JSONObject jsonObject =(JSONObject) new JSONParser().parse(body);
             JokeDatabase database = new JokeDatabase();
@@ -73,9 +74,14 @@ public class JokeController {
                 return ResponseEntity.status(400).contentType(MediaType.APPLICATION_JSON).body(response.toJSONString());
             }
 
-            database.insertJoke(newJoke);
-            response.put("info","Joke successfully added.");
-            return ResponseEntity.status(200).contentType(MediaType.APPLICATION_JSON).body(response.toJSONString());
+            if (database.insertJoke(newJoke)){
+                status = 201;
+                response.put("info","Joke successfully added.");
+            } else {
+                status = 500;
+                response.put("info","Joke successfully added.");
+            };
+            return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(response.toJSONString());
         } catch (ParseException e) {
             response.put("error","Incorrect body of request.");
             return ResponseEntity.status(400).contentType(MediaType.APPLICATION_JSON).body(response.toJSONString());
